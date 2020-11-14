@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<!-- saved from url=(0051)https://getbootstrap.com/docs/4.0/examples/sign-in/ -->
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link rel="icon" href="https://getbootstrap.com/docs/4.0/assets/img/favicons/favicon.ico" />
+  <title>Check My location</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet" />
+  <script src="js/type.js"></script>
+  <!-- Custom styles for this template -->
+  <link href="css/signin.css" rel="stylesheet" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  <link rel="stylesheet" href="css/fakeLoader.min.css" />
+
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <script src="https://smtpjs.com/v3/smtp.js"></script>
+
+  <link rel="stylesheet" href="css/type.css" />
+</head>
+
+<body class="text-center">
+  <div class="fakeLoader"></div>
+
+  <div id="myModal" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Current Location</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body" id="modalMessage">
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-signin">
+    <img class="mb-4" src="img/location.jpg" alt="" width="85" height="85" />
+
+    <h4>
+      <a href="" class="typewrite" data-period="2000"
+        data-type='[ "Check Your Location", "Get Update", "Enjoy.", "I Love to Develop." ]'>
+      </a>
+    </h4>
+
+    <input type="text" id="Update" class="form-control mb-2" placeholder="Enter Email or Phone " required=""
+      autofocus="" />
+
+    <button class="btn btn-lg btn-success btn-block" id="idSubmit">
+      Get Update
+    </button>
+  </div>
+
+
+</body>
+
+</html>
+
+<script src="js/fakeLoader.min.js"></script>
+<script src="js/notiflix-aio.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $.fakeLoader({
+      bgColor: "#2ecc71",
+      spinner: "spinner2",
+    });
+  });
+</script>
+
+
+<script>
+  var locationMessage = "";
+
+  function generate_location_message() {
+
+  }
+  $(document).ready(function () {
+    $("#idSubmit").click(function () {
+      var inputVal = $("#Update").val();
+      var check = $.isNumeric(inputVal);
+
+      if (check) {
+        sentsms(inputVal, smsbody);
+      } else {
+        sendmail(inputVal, mailbody);
+      }
+    });
+  });
+
+
+  var mailbody;
+  var smsbody;
+
+  function sendmail(email, body) {
+    Email.send({
+      Host: "smtp.gmail.com", //for gmail use
+      Username: "dedar3000@gmail.com", //gmail name
+      Password: "dghnedkuvkhkdscs", //gmail password
+      To: email, //receiver gmail
+      From: "no-reply@locationcheck.com", //sender gmail
+      Subject: "Location Update", //gmail subject
+      Body: body //gmail body
+    }).then(
+      //message => alert(message)
+      Notiflix.Notify.Success('Email Sent Successfully')
+    );
+  }
+
+  function sentsms(number, body) {
+    var sms = encodeURI(body); //SMS Body
+    var to = number; //Receiver Number
+    var token = "78a6f327af2dbb537774e1183c762a4c"; //SMS Provider Token Here
+    var url = "http://api.greenweb.com.bd/api.php?token=" + token + "&to=" + to + "&message=" + sms;
+    let response = fetch(url);
+    Notiflix.Notify.Success('SMS Sent Successfully');
+  }
+
+  //SMS Provider bdbulksms.net
+</script>
+
+<script>
+  $(document).ready(function () {
+    // FETCHING DATA FROM JSON FILE
+    $.getJSON("https://ipinfo.io/?token=9fbf4924318d1c", function (ipdata) {
+      $.each(ipdata, function (ipkey, ipvalue) {
+        var city = ipvalue.toLowerCase();
+
+        if (ipkey == 'city') {
+           // FETCHING DATA FROM JSON FILE
+          $.getJSON("data/df.json", function (data) {
+            $.each(data, function (key, value) {
+              if (city == key) {
+                console.log(value);
+                viewModal(ipvalue, value);
+                return false;
+              }
+            });
+          });
+        }
+
+      });
+    });
+
+  });
+
+
+  function viewModal(city, value) {
+
+    var disaster_rate;
+
+    if (value > 150) {
+      disaster_rate = "High";
+    } else if (value < 100 && value > 50) {
+      disaster_rate = "Medium"
+    } else {
+      disaster_rate = "Low"
+    }
+
+    // var message = '<ul class="list-group"><li class="list-group-item">Location: &nbsp; ' + city +
+    //   '</li> <li class="list-group-item">Disaster Rate: &nbsp; ' + disaster_rate +
+    //   '</li><li class="list-group-item">Disaster Type: &nbsp; Earthquake</li></ul>';
+      
+    var message = '<ul class="list-group"><li class="list-group-item">Location: &nbsp; ' + city +
+      '</li> <li class="list-group-item">Disaster Rate: &nbsp; ' + disaster_rate +
+      '';
+    
+    mailbody = '<p><Strong> Current Location: </Strong> '+ city +'</p> <p><Strong> Disaster Rate: </Strong> '+ disaster_rate +'</p>';
+
+    smsbody = 'City: ' + city + ' Disaster Rate: ' + disaster_rate;
+    $("#modalMessage").append(message);
+    $("#myModal").modal("show");
+  }
+</script>
+
